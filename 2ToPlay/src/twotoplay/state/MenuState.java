@@ -1,20 +1,24 @@
 package twotoplay.state;
 
+import org.lwjgl.input.Mouse;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-public class MenuState extends BasicGameState {
+import twotoplay.Core;
 
+public class MenuState extends BasicGameState {
+	
 	private final int 
 		X = 0,
 		Y = 0,
-		SIZE = 4,
-		WIDTH = 800 / SIZE,
-		HEIGHT = 600 / SIZE;
+		SIZE = 6,
+		WIDTH = Core.WIDTH / SIZE,
+		HEIGHT = Core.HEIGHT / SIZE;
 	
 	private ColorUnit[][] colorUnits = new ColorUnit[WIDTH][HEIGHT];
 	
@@ -22,9 +26,8 @@ public class MenuState extends BasicGameState {
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
 		// Setting up information for the squares
 		for(int x = 0; x < colorUnits.length ; x++) for(int y = 0; y < colorUnits[0].length ; y++) {
-			int r = 255;
-			int g = 255;
-			int b = 255;
+			int r, g, b;
+			r = g = b = 255;
 			
 			colorUnits[x][y] = new ColorUnit(x * SIZE + X, y * SIZE + Y, SIZE, SIZE, new Color(r, g, b), true);
 		}
@@ -51,12 +54,14 @@ public class MenuState extends BasicGameState {
 					// If it will change its color, then it will only change
 					// one of the RGB values will change by 1 or -1
 					int colorDelta = 2;
-					int change = ((int)(Math.random() * 2) == 0 ? colorDelta : -colorDelta);
+					int change = ((int)(Math.random() * 2) == 0 ? (int)(delta / 1.5) : (int)(-delta / 1.5));
 					int color = (int)(Math.random() * 3);
 					
 					int r = colorUnits[x][y].getColor().getRed();
 					int g = colorUnits[x][y].getColor().getGreen();
 					int b = colorUnits[x][y].getColor().getBlue();
+					
+					g = b = 0;
 					
 					switch(color) {
 					case 0:
@@ -136,13 +141,28 @@ public class MenuState extends BasicGameState {
 							if(num == 5) color = c5;
 							if(num == 6) color = c6;
 							if(num == 7) color = c7;
+							if(!(num == 2))
 							colorUnits[x][y].setColor(color);
 						}
 					}
 				}
 			}
 			// Each colorunit has a smal change of switching from a conformer to a leader, and vise versa
-			if((int)(Math.random() * 1000 * 1000) == 0) colorUnits[x][y].setConformer(!colorUnits[x][y].isConformer());
+			if((int)(Math.random() * 1000 * 1000) == 0) colorUnits[x][y].setConformer(colorUnits[x][y].isConformer());
+		}
+		
+		Input input = container.getInput();
+		
+		if(input.isMouseButtonDown(0)) {
+			int x = Mouse.getX();
+			int y = Core.HEIGHT - Mouse.getY();
+			
+			int cellX = (int) (x / SIZE + 0.5);
+			int cellY = (int) (y / SIZE + 0.5);
+						
+			colorUnits[cellX][cellY].setConformer(false);
+			colorUnits[cellX][cellY].setColor(new Color(35, 0, 0));
+			
 		}
 	}
 	
